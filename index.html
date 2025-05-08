@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학교 타이머</title>
+    <style>
+        /* 전체 페이지 스타일 설정 */
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        /* 타이머 컨테이너 스타일 */
+        .timer-container {
+            display: inline-block;
+            padding: 20px;
+            border-radius: 10px;
+            background: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        /* 타이머 숫자 스타일 */
+        .timer {
+            font-size: 64px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #0078d7;
+        }
+        /* 버튼 컨트롤 스타일 */
+        .controls {
+            margin: 20px 0;
+        }
+        /* 버튼 기본 스타일 */
+        button {
+            font-size: 16px;
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #0078d7;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        /* 버튼 호버 스타일 */
+        button:hover {
+            background-color: #005bb5;
+        }
+        /* 비활성화된 버튼 스타일 */
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        /* 숫자 입력 필드 스타일 */
+        input[type="number"] {
+            width: 60px;
+            padding: 5px;
+            font-size: 16px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>학교 타이머</h1>
+    <div class="timer-container">
+        <div>
+            <!-- 분과 초를 입력받는 필드 -->
+            <label for="minutes">분:</label>
+            <input type="number" id="minutes" min="0" value="0">
+            <label for="seconds">초:</label>
+            <input type="number" id="seconds" min="0" max="59" value="0">
+        </div>
+        <!-- 타이머 표시 영역 -->
+        <div class="timer" id="timerDisplay">00:00</div>
+        <div class="controls">
+            <!-- 타이머 시작 버튼 -->
+            <button id="startButton" onclick="startTimer()">시작</button>
+            <!-- 타이머 일시정지 버튼 -->
+            <button id="pauseButton" onclick="pauseTimer()" disabled>일시정지</button>
+            <!-- 타이머 초기화 버튼 -->
+            <button id="resetButton" onclick="resetTimer()">초기화</button>
+        </div>
+    </div>
+
+    <script>
+        let timerInterval; // 타이머를 실행하는 setInterval 참조 변수
+        let remainingTime = 0; // 남은 시간을 초 단위로 저장
+
+        // 타이머 화면을 업데이트하는 함수
+        function updateDisplay() {
+            const minutes = Math.floor(remainingTime / 60); // 남은 시간의 분 계산
+            const seconds = remainingTime % 60; // 남은 시간의 초 계산
+            document.getElementById('timerDisplay').textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`; // 2자리 형식으로 표시
+        }
+
+        // 타이머 시작 함수
+        function startTimer() {
+            const minutesInput = parseInt(document.getElementById('minutes').value) || 0; // 입력된 분 값
+            const secondsInput = parseInt(document.getElementById('seconds').value) || 0; // 입력된 초 값
+
+            if (remainingTime === 0) {
+                remainingTime = minutesInput * 60 + secondsInput; // 입력값을 초 단위로 변환
+            }
+
+            if (remainingTime > 0 && !timerInterval) {
+                document.getElementById('startButton').disabled = true; // 시작 버튼 비활성화
+                document.getElementById('pauseButton').disabled = false; // 일시정지 버튼 활성화
+
+                timerInterval = setInterval(() => {
+                    if (remainingTime > 0) {
+                        remainingTime--; // 남은 시간 감소
+                        updateDisplay(); // 화면 업데이트
+                    } else {
+                        clearInterval(timerInterval); // 타이머 종료
+                        timerInterval = null;
+                        alert('타이머가 종료되었습니다!'); // 알림 표시
+                        document.getElementById('startButton').disabled = false; // 시작 버튼 활성화
+                        document.getElementById('pauseButton').disabled = true; // 일시정지 버튼 비활성화
+                    }
+                }, 1000); // 1초 간격으로 실행
+            }
+        }
+
+        // 타이머 일시정지 함수
+        function pauseTimer() {
+            clearInterval(timerInterval); // 타이머 중지
+            timerInterval = null;
+            document.getElementById('startButton').disabled = false; // 시작 버튼 활성화
+            document.getElementById('pauseButton').disabled = true; // 일시정지 버튼 비활성화
+        }
+
+        // 타이머 초기화 함수
+        function resetTimer() {
+            clearInterval(timerInterval); // 타이머 중지
+            timerInterval = null;
+            remainingTime = 0; // 남은 시간 초기화
+            updateDisplay(); // 화면 초기화
+            document.getElementById('startButton').disabled = false; // 시작 버튼 활성화
+            document.getElementById('pauseButton').disabled = true; // 일시정지 버튼 비활성화
+        }
+
+        updateDisplay(); // 초기 화면 설정
+    </script>
+</body>
+</html>
